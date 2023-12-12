@@ -1,0 +1,521 @@
+
+CREATE DATABASE ProyectoFinal_GRUPO1
+
+USE ProyectoFinal_GRUPO1
+go
+
+----------------------------
+--Administracion del Login--
+----------------------------
+
+
+--TABLA USUARIOS PARA LOGIN
+---------------------------
+create table UsersAD
+(
+codigo int identity primary key,
+nombre varchar(50),
+correo varchar(50) not null,
+clave varchar(50)not null,
+constraint uq_correo UNIQUE(correo)
+)
+
+insert into UsersAD (correo, clave) values ('lacm@lacm.com', '1234')
+select * from UsersAD
+
+--TABLA ROLES
+-------------
+
+create table Roles
+(
+codigo int identity primary key,
+rolename varchar(40) constraint uq_rolename unique
+)
+
+
+--TABLA USUARIO_ROLES
+---------------------
+
+create table UsersRoles
+(
+iduser int constraint fk_iduser foreign key (iduser) references UsersAD(codigo),
+idrol int constraint fk_idrol foreign key (idrol) references Roles(codigo),
+)
+
+--VALIDAR LOGIN
+---------------
+CREATE procedure ValidarUsuario
+
+@correo varchar(50),
+@clave varchar(50)
+as
+begin
+	select U.codigo AS ID_Usuario, U.nombre AS Nombre, U.correo AS Correo, S.idrol AS ID_Rol, R.rolename AS Nombre_Rol
+	from UsersAD U
+	inner join UsersRoles S ON U.codigo = S.iduser
+	INNER JOIN Roles R ON R.codigo = s.idrol
+	where correo = @correo and clave= @clave
+end
+select * from UsersAD
+exec ValidarUsuario 'lacm@lacm.com', '1234'
+
+
+------------------------------------------
+--PROCEDIMIENTOS ALMACENADOS TABLA UsersAD
+------------------------------------------
+
+-- AGREGAR USUARIOS
+--------------------
+
+--AGREGAR USER A LA BD Y DAR ROL
+CREATE PROCEDURE RegistrarUsuarioYRol
+    @nombre varchar(50),
+    @correo varchar(50),
+    @clave varchar(50),
+    @idrol int
+AS
+BEGIN
+    DECLARE @idUsuario INT;
+
+    -- Insertar el usuario en la tabla UsersAD
+    INSERT INTO UsersAD(nombre, correo, clave)
+    VALUES (@nombre, @correo, @clave);
+
+    -- Obtener el código (identity) del usuario recién insertado
+    SET @idUsuario = SCOPE_IDENTITY();
+
+    -- Insertar la relación en la tabla UsersRoles
+    INSERT INTO UsersRoles(iduser, idrol)
+    VALUES (@idUsuario, @idRol);
+END
+
+select * from UsersAD
+
+
+--MODIFICAR PASSWORD USUARIO POR CORREO
+-------------------------------
+
+CREATE PROCEDURE ModificarPasswordUserAD
+ @correo varchar(50),
+ @clave varchar(50)
+AS
+BEGIN
+	UPDATE UsersAD 
+	SET clave = @clave WHERE correo = @correo
+END
+
+select * from UsersAD
+
+exec ModificarPasswordUserAD 'mario1@test.com', '1234eee'
+
+
+--VALIDAR CORREO
+----------------
+
+CREATE PROCEDURE ValidarUserEmailAD
+ @correo varchar(50)
+AS
+BEGIN
+	select correo from UsersAD where correo = @correo
+END
+
+exec ValidarUserEmailAD 'lacm@test.com'
+
+-------------------------------
+--Fin Administracion de Login--
+-------------------------------
+----------------------------------------------------------------------------------------------
+---------------------
+--Sistema de Tablas--
+---------------------
+
+CREATE TABLE Usuarios 
+(
+	UsuarioID INT PRIMARY KEY IDENTITY,
+	Nombre Varchar(50) not null,
+	Correo varchar(50),
+	Telefono varchar(15) unique
+)
+
+insert into Usuarios (Nombre, Correo, Telefono) values ('Luis', 'lacm@lacm.com', '1234')
+
+CREATE TABLE Equipos
+(
+	EquipoID INT PRIMARY KEY IDENTITY,
+	TipoEquipo varchar(50) not null,
+	Modelo varchar(50),
+	UsuarioID int,
+	CONSTRAINT fk_usuarioid FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID)
+)
+CREATE TABLE Reparaciones
+(
+	ReparacionID INT PRIMARY KEY IDENTITY,
+	EquipoID int,
+	FechaSolicitud datetime,
+	Estado char (1),
+	CONSTRAINT fk_equipoid FOREIGN KEY (EquipoID) REFERENCES Equipos(EquipoID)
+)
+CREATE TABLE Tecnicos
+(
+	TecnicoID INT PRIMARY KEY IDENTITY,
+	Nombre Varchar(50),
+	Especialidad varchar (50)
+)
+CREATE TABLE DetallesReparacion
+(
+	DetalleID INT PRIMARY KEY IDENTITY,
+	ReparacionID int,
+	Descripcion varchar(50),
+	FechaInicio datetime,
+	FechaFin datetime
+	CONSTRAINT fk_reparacionid FOREIGN KEY(ReparacionID) REFERENCES Reparaciones(ReparacionID),
+)
+CREATE TABLE Asignaciones
+(
+	AsignacionID INT PRIMARY KEY IDENTITY,
+	ReparacionID int,
+	TecnicoID int,
+	FechaAsignacion datetime,
+	CONSTRAINT fk_reparacionid2 FOREIGN KEY (ReparacionID) REFERENCES Reparaciones(ReparacionID),
+	CONSTRAINT fk_tecnicoid FOREIGN KEY (TecnicoID) REFERENCES Tecnicos(TecnicoID)
+)
+
+--------------------------
+--FIN CREACION DE TABLAS--
+--------------------------
+
+-----------------------------------------------------------------------------------------------------
+
+--------------------------------
+--PROCEDIMIENTOS DE ALMACENADO--
+--------------------------------
+
+--------------------------------------------
+--PROCEDIMIENTOS ALMACENADOS TABLA EQUIPOS
+--------------------------------------------
+
+-- AGREGAR EQUIPOS
+------------------
+CREATE PROCEDURE IngresarEquipo
+ @TipoEquipo varchar(50),
+ @Modelo VARCHAR(50),
+ @UID int 
+AS
+BEGIN
+	INSERT INTO Equipos(TipoEquipo, Modelo, UsuarioID)
+	VALUES (@TipoEquipo, @Modelo, @UID)
+END
+
+-- BORRAR EQUIPO POR ID
+-----------------------
+CREATE PROCEDURE BorrarEquipo
+ @EID int
+AS
+BEGIN
+	DELETE Equipos WHERE EquipoID = @EID
+END
+
+-- CONSULTA POR FILTRO EQUIPO ID
+--------------------------------
+CREATE PROCEDURE ConsultarEquipo 
+ @EID int
+AS
+BEGIN
+	SELECT * FROM Equipos WHERE EquipoID = @EID
+END
+
+-- MODIFICAR EQUIPO
+-------------------
+CREATE PROCEDURE ModificarEquipo
+ @EID int,
+ @TipoEquipo varchar(50),
+ @Modelo varchar(50),
+ @UID int
+AS
+BEGIN
+	UPDATE Equipos SET TipoEquipo = @TipoEquipo, Modelo = @Modelo, UsuarioID = @UID WHERE EquipoID = @EID
+END
+
+-- AGREGAR USUARIOS
+-------------------
+CREATE PROCEDURE IngresarUsuario
+ @Nombre varchar(50),
+ @Correo VARCHAR(50),
+ @Telefono varchar(50)
+AS
+BEGIN
+	INSERT INTO Usuarios(Nombre, Correo, Telefono)
+	VALUES (@Nombre, @Correo, @Telefono)
+END
+
+-- BORRAR USUARIO POR ID
+------------------------
+CREATE PROCEDURE BorrarUsuario
+ @UID int
+AS
+BEGIN
+	DELETE Usuarios WHERE UsuarioID = @UID
+END
+
+-- CONSULTA POR FILTRO USUARIOID
+-------------------------------
+CREATE PROCEDURE ConsultarUsuario
+ @UID int
+AS
+BEGIN
+	SELECT * FROM Usuarios WHERE UsuarioID = @UID
+END
+
+-- MODIFICAR USUARIO POR ID
+--------------------------
+CREATE PROCEDURE ModificarUsuario
+ @UID int,
+ @Nombre varchar(50),
+ @Correo VARCHAR(50),
+ @Telefono varchar(50)
+AS
+BEGIN
+	UPDATE Usuarios 
+	SET Nombre = @Nombre, Correo = @Correo, Telefono = @Telefono WHERE UsuarioID = @UID
+END
+
+-- AGREGAR TECNICOS
+-------------------
+CREATE PROCEDURE IngresarTecnico
+ @Nombre varchar(50),
+ @Especialidad VARCHAR(50)
+AS
+BEGIN
+	INSERT INTO Tecnicos(Nombre, Especialidad) VALUES (@Nombre, @Especialidad)
+END
+
+-- BORRAR TECNICO POR ID
+------------------------
+CREATE PROCEDURE BorrarTecnico
+ @TID int
+AS
+BEGIN
+	DELETE Tecnicos WHERE TecnicoID = @TID
+END
+
+-- CONSULTA POR FILTRO TECNICOID
+-------------------------------
+CREATE PROCEDURE ConsultarTecnico
+ @TID int
+AS
+BEGIN
+	SELECT * FROM Tecnicos WHERE TecnicoID = @TID
+END
+
+-- MODIFICAR TECNICO POR ID
+---------------------------
+CREATE PROCEDURE ModificarTecnico
+ @TID int,
+ @Nombre varchar(50),
+ @Especialidad VARCHAR(50)
+AS
+BEGIN
+	UPDATE Tecnicos 
+	SET Nombre = @Nombre, Especialidad = @Especialidad WHERE TecnicoID = @TID
+END
+
+
+-- AGREGAR ASIGNACIONES
+-----------------------
+CREATE PROCEDURE IngresarAsignacion
+ @RID int,
+ @TID int,
+ @FechaAsignacion datetime
+AS
+BEGIN
+	INSERT INTO Asignaciones(ReparacionID, TecnicoID, FechaAsignacion)
+	VALUES (@RID, @TID, @FechaAsignacion)
+END
+
+-- BORRAR ASIGNACION POR ID
+---------------------------
+CREATE PROCEDURE BorrarAsignacion
+ @AID int
+AS
+BEGIN
+	DELETE Asignaciones WHERE AsignacionID = @AID
+END
+
+-- CONSULTA POR FILTRO ASIGNACIONID
+-----------------------------------
+CREATE PROCEDURE ConsultarAsignacion
+ @AID int
+AS
+BEGIN
+	SELECT * FROM Asignaciones WHERE AsignacionID = @AID
+END
+
+-- MODIFICAR ASIGNACION
+-----------------------
+CREATE PROCEDURE ModificarAsignacion
+ @AID int,
+ @RID int,
+ @TID int,
+ @FechaAsignacion datetime
+AS
+BEGIN
+	UPDATE Asignaciones 
+	SET ReparacionID = @RID, TecnicoID = @TID, FechaAsignacion = @FechaAsignacion
+	WHERE AsignacionID = @AID
+END
+
+-- AGREGAR REPARACIONES
+-----------------------
+CREATE PROCEDURE IngresarReparacion
+ @EID int,
+ @FechaSolicitud datetime,
+ @Estado char(1)
+AS
+BEGIN
+	INSERT INTO Reparaciones(EquipoID, FechaSolicitud, Estado)
+	VALUES (@EID, @FechaSolicitud, @Estado)
+END
+
+-- BORRAR REPARACION POR ID
+---------------------------
+CREATE PROCEDURE BorrarReparacion
+ @RID int
+AS
+BEGIN
+	DELETE Reparaciones WHERE ReparacionID = @RID
+END
+
+-- CONSULTA POR FILTRO REPARACIONID
+-----------------------------------
+CREATE PROCEDURE ConsultarReparacion
+ @RID int
+AS
+BEGIN
+	SELECT * FROM Reparaciones WHERE ReparacionID = @RID
+END
+
+-- MODIFICAR REPARACION
+-----------------------
+CREATE PROCEDURE ModificarReparacion
+ @RID int,
+ @EID int,
+ @FechaSolicitud datetime,
+ @Estado char(1)
+AS
+BEGIN
+	UPDATE Reparaciones 
+	SET EquipoID = @EID, FechaSolicitud = @FechaSolicitud, Estado = @Estado
+	WHERE ReparacionID = @RID
+END
+
+-- AGREGAR DETALLES DE REPARACION
+---------------------------------
+CREATE PROCEDURE IngresarDetalleReparacion
+ @RID int,
+ @Descripcion varchar(50),
+ @FechaInicio datetime,
+ @FechaFin datetime
+AS
+BEGIN
+	INSERT INTO DetallesReparacion(ReparacionID, Descripcion, FechaInicio, FechaFin)
+	VALUES (@RID, @Descripcion, @FechaInicio, @FechaFin)
+END
+
+-- BORRAR DETALLE DE REPARACION POR ID
+--------------------------------------
+CREATE PROCEDURE BorrarDetalleReparacion
+ @DID int
+AS
+BEGIN
+	DELETE DetallesReparacion WHERE DetalleID = @DID
+END
+
+-- CONSULTA POR FILTRO DETALLEID
+--------------------------------
+CREATE PROCEDURE ConsultarDetalleReparacion
+ @DID int
+AS
+BEGIN
+	SELECT * FROM DetallesReparacion WHERE DetalleID = @DID
+END
+
+-- MODIFICAR DETALLE DE REPARACION
+----------------------------------
+CREATE PROCEDURE ModificarDetalleReparacion
+ @DID int,
+ @RID int,
+ @Descripcion varchar(50),
+ @FechaInicio datetime,
+ @FechaFin datetime
+AS
+BEGIN
+	UPDATE DetallesReparacion 
+	SET ReparacionID = @RID, Descripcion = @Descripcion, FechaInicio = @FechaInicio, FechaFin = @FechaFin
+	WHERE DetalleID = @DID
+END
+
+
+--------------------------------------------------------------------------------------
+--INNER JOIN CONSULTAR TECNICOS
+--------------------------------------------------------------------------------------
+
+CREATE PROCEDURE ConsultarTecnicos
+@ROL VARCHAR(20)='',
+@TID INT = 0
+AS
+BEGIN
+		
+		IF @ROL = 'admin'
+			BEGIN
+				SELECT t.TecnicoID AS [Cogido Tecnico], t.Nombre, a.AsignacionID AS [Codigo Asignacion], a.FechaAsignacion AS [Fecha Asignacion], 
+				a.ReparacionID AS [Codigo Reparacion], r.FechaSolicitud AS [Fecha Solicitud], r.Estado, dr.Descripcion, 
+				e.TipoEquipo AS [Tipo de Equipo], e.Modelo, u.Nombre [Nombre de Usuario], u.Correo
+				FROM Tecnicos t
+				inner join Asignaciones a on t.TecnicoID = a.TecnicoID
+				inner join Reparaciones r on r.ReparacionID = a.ReparacionID
+				inner join DetallesReparacion dr on dr.ReparacionID = a.ReparacionID
+				inner join Equipos e on e.EquipoID = e.EquipoID
+				inner join Usuarios u on u.UsuarioID = e.UsuarioID
+			END
+		ELSE
+			BEGIN
+				SELECT t.TecnicoID AS [Cogido Tecnico], t.Nombre, a.AsignacionID AS [Codigo Asignacion], a.FechaAsignacion AS [Fecha Asignacion],
+				a.ReparacionID AS [Codigo Reparacion], r.FechaSolicitud, r.Estado AS [Fecha Solicitud], dr.Descripcion, e.TipoEquipo AS [Tipo de Equipo],
+				e.Modelo, u.Nombre AS [Nombre de Usuario], u.Correo
+				FROM Tecnicos t
+				inner join Asignaciones a on t.TecnicoID = a.TecnicoID
+				inner join Reparaciones r on r.ReparacionID = a.ReparacionID
+				inner join DetallesReparacion dr on dr.ReparacionID = a.ReparacionID
+				inner join Equipos e on e.EquipoID = e.EquipoID
+				inner join Usuarios u on u.UsuarioID = e.UsuarioID
+				WHERE t.TecnicoID = @TID
+				END
+END
+
+--------------------------------------------------------------------------------------
+--INNER JOIN CONSULTA ESPECIFICA CONSULTARTECNICOS
+---
+
+CREATE PROCEDURE ConsultarTecnicoEspecifico
+@ROL VARCHAR(20)='',
+@TID INT = 0
+AS
+BEGIN
+		IF @ROL = 'admin'
+			BEGIN
+				SELECT t.TecnicoID AS [Cogido Tecnico], t.Nombre, a.AsignacionID AS [Codigo Asignacion], a.FechaAsignacion AS [Fecha Asignacion],
+				a.ReparacionID AS [Codigo Reparacion], r.FechaSolicitud, r.Estado AS [Fecha Solicitud], dr.Descripcion, e.TipoEquipo AS [Tipo de Equipo],
+				e.Modelo, u.Nombre AS [Nombre de Usuario], u.Correo
+				FROM Tecnicos t
+				inner join Asignaciones a on t.TecnicoID = a.TecnicoID
+				inner join Reparaciones r on r.ReparacionID = a.ReparacionID
+				inner join DetallesReparacion dr on dr.ReparacionID = a.ReparacionID
+				inner join Equipos e on e.EquipoID = e.EquipoID
+				inner join Usuarios u on u.UsuarioID = e.UsuarioID
+				WHERE t.TecnicoID = @TID
+				END
+END
+
+---------------------------------------------------------------------------------------
+--Fin INNER JOIN
+---------------------------------------------------------------------------------------

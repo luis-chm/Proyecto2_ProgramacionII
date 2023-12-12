@@ -1,0 +1,103 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Menu.master.cs" Inherits="Proyecto2_ProgramacionII.Menu.Menu" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  	<title>Menu Principal</title>
+
+	<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,700' rel='stylesheet' type='text/css'>
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	
+	<link rel="stylesheet" href="css/style.css">
+    
+    <link href="css/Gridview.css" rel="stylesheet" />
+	    <script>
+        // Ajusta el nivel de zoom al cargar la página
+        document.addEventListener('DOMContentLoaded', function () {
+            document.body.style.zoom = '85%';
+        });
+        </script>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+	 <form id="form2" runat="server" action="#">
+	<section class="ftco-section">
+		<div class="container" style="margin-top: -100px;">
+			<div class="row justify-content-center">
+				<div class="col-md-6 text-center mb-5">
+					<h2 class="heading-section">Menu Principal</h2>
+				</div>
+			</div>
+		</div>
+		<div class="wrap">
+			<div class="container" style="margin-top: -20px">
+				<div class="row justify-content-between">
+						<div class="col d-flex justify-content-end">
+							<div class="social-media">
+				    		<p class="mb-0 d-flex">
+                                <h1></h1>
+				    		</p>
+			        </div>
+						</div>
+				</div>
+			</div>
+		</div>
+		<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar" style="margin-top: 10px;">
+	    <div class="container" style="margin-top: -10px;">
+	    	<a class="navbar-brand" href="Inicio.aspx">Proyecto 2 <span>Programación II</span></a>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+	        <span class="fa fa-bars"></span> Menu
+	      </button>
+	      <div class="collapse navbar-collapse" id="ftco-nav">
+			  <ul class="navbar-nav m-auto">
+				  <li runat="server" class="nav-item" id="liInicio"><a href="Inicio.aspx" class="nav-link">Inicio</a></li>
+				  <li runat="server" class="nav-item" id="liUsuarios"><a href="Usuarios.aspx" class="nav-link">Usuarios</a></li>
+				  <li runat="server" class="nav-item" id="liEquipos"><a href="Equipos.aspx" class="nav-link">Equipos</a></li>
+				  <li runat="server" class="nav-item" id="liTecnicos"><a href="Tecnicos.aspx" class="nav-link">Tecnicos</a></li>
+				  <li runat="server" class="nav-item" id="liConsultaTecnicos"><a href="ConsultarTecnicos.aspx" class="nav-link">Consulta&nbsp;Tecnicos</a></li>
+				  <li runat="server" class="nav-item" id="liReparaciones"><a href="Reparaciones.aspx" class="nav-link">Reparaciones</a></li>
+				  <li runat="server" class="nav-item" id="liDetallesReparaciones"><a href="DetallesReparacion.aspx" class="nav-link">Detalles&nbsp;Reparaciones</a></li>
+				  <li runat="server" class="nav-item" id="liAsignaciones"><a href="Asignaciones.aspx" class="nav-link">Asignaciones</a></li>
+				  <li runat="server" style="margin-right: 20px;"></li>
+			  </ul>
+				<div class="btn-group">
+				  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+				  <label for="espacio" class="fa fa-user"</label>  
+				 <asp:Label ID="Label1" runat="server" Text=""></asp:Label>
+				  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				  </button>
+				  <div class="dropdown-menu dropdown-menu-dark dropdown-menu-lg-end">
+				  
+				  <a class="dropdown-item" href="Perfil.aspx"><i class="fa fa-user fa-fw"></i>Mi Perfil</a>
+				  <a class="dropdown-item" href="Preferencias.aspx"><i class="icon fa fa-wrench"></i> Preferencias</a>
+				  <div class="dropdown-divider"></div>
+				  <a class="dropdown-item" href="../Login/Login.aspx"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+				  </div>
+				</div>     
+	    </div>
+	  </nav>
+    <!-- END nav -->
+				    <div class="page-footer" style="background-color:black; color:white; position: fixed; bottom: 0; width: 100%;">
+        <div class="container text-center">
+            Sistema de Catálogos, Derechos Reservados 2023 © Universidad Politécnica Internacional.
+        </div>
+    </div>
+	</section>
+
+	<script src="js/jquery.min.js"></script>
+  <script src="js/popper.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/main.js"></script>
+    <div>
+         <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+         </asp:ContentPlaceHolder>
+    </div>
+    </form>
+</body>
+</html>
+
